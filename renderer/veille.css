@@ -1,0 +1,112 @@
+/* Écran de veille : couleurs injectées par theme-ecran.js (thème Windows) */
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body {
+  position: relative;
+  background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  cursor: none;
+  user-select: none;
+}
+
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 82vh;
+  height: 82vh;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 55%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 20%, transparent) 38%,
+    transparent 68%);
+  filter: blur(1.5vh);
+  animation: breathe-glow 6s ease-in-out infinite;
+}
+body:not(.dark) .glow { opacity: .7; }
+@keyframes breathe-glow { 50% { transform: translate(-50%, -50%) scale(1.06); } }
+
+.stars span {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 .8vh rgba(255,255,255,.8);
+  animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle { 50% { opacity: .1; } }
+
+/* Toute la scène dérive lentement (évite de marquer l'écran) */
+.drift { position: absolute; inset: 0; animation: drift 90s ease-in-out infinite alternate; }
+@keyframes drift {
+  0% { transform: translate(-3vw, -2vh); }
+  50% { transform: translate(3vw, 1vh); }
+  100% { transform: translate(-1vw, 3vh); }
+}
+
+.clock { position: absolute; left: 0; right: 0; top: 12%; text-align: center; color: var(--ink-strong); }
+.time { font-size: 14vh; font-weight: 300; letter-spacing: .02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.date { margin-top: 1.5vh; font-size: 3vh; color: var(--ink); }
+
+.scene {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 40vh;
+  height: 40vh;
+  transform: translate(-50%, -50%);
+}
+#avatar {
+  width: 100%;
+  height: 100%;
+  animation: snooze 5s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 3vh color-mix(in srgb, var(--accent) 45%, transparent))
+    drop-shadow(0 2.5vh 3vh rgba(0,0,0,.35));
+}
+body:not(.dark) #avatar {
+  filter:
+    drop-shadow(0 0 3vh color-mix(in srgb, var(--accent) 35%, transparent))
+    drop-shadow(0 2vh 3vh rgba(15,23,42,.18));
+}
+/* Respiration du dormeur */
+@keyframes snooze {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-1vh) scale(1.03, .98); }
+}
+
+.zzz { position: absolute; right: 4%; top: 10%; width: 12vh; height: 14vh; color: var(--accent); font-weight: 700; }
+.zzz span {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  opacity: 0;
+  text-shadow: 0 0 1.4vh color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: float-z 4.5s ease-in infinite;
+}
+.zzz span:nth-child(1) { font-size: 3vh; }
+.zzz span:nth-child(2) { font-size: 4.2vh; animation-delay: 1.5s; }
+.zzz span:nth-child(3) { font-size: 6vh; animation-delay: 3s; }
+@keyframes float-z {
+  0% { transform: translate(0, 0) rotate(-8deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(8vh, -12vh) rotate(12deg); opacity: 0; }
+}
+
+.hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(62% + 24vh);
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.9vh;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+body.secondaire .drift { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glow, .stars span, .drift, #avatar, .zzz span { animation: none; }
+  .zzz span { opacity: 1; }
+}

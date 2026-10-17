@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Nuage : téléchargements",
+  "version": "1.0.0",
+  "description": "Montre à Nuage, ton compagnon de bureau, l'avancement de tes téléchargements. Rien ne quitte ton ordinateur.",
+  "permissions": ["downloads"],
+  "host_permissions": ["http://127.0.0.1:47823/*"],
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icone-16.png", "48": "icone-48.png", "128": "icone-128.png" }
+}

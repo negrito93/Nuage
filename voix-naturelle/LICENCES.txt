@@ -1,0 +1,14 @@
+Voix naturelle de Nuage (facultative) : a telecharger, non incluse dans le depot
+
+Programme : Piper 2023.11.14-2, synthese vocale neuronale, licence MIT
+  https://github.com/rhasspy/piper/releases (piper_windows_amd64.zip, avec espeak-ng et ONNX Runtime)
+  -> decompresser dans voix-naturelle\piper\ (on doit avoir voix-naturelle\piper\piper.exe)
+
+Voix francaises (https://huggingface.co/rhasspy/piper-voices, fichiers .onnx et .onnx.json) :
+  -> dans voix-naturelle\voix\
+  - fr_FR-siwis-medium : Siwis, voix feminine ; donnees SIWIS (Universite d'Edimbourg), licence CC BY 4.0
+  - fr_FR-upmc-medium  : Jessica (feminine) et Pierre (masculine) ; donnees UPMC, licence CC BY-SA 4.0
+  - fr_FR-tom-medium   : Tom, voix masculine ; licence AGPL-3.0
+
+Tout fonctionne sur le PC, hors ligne : aucun texte ni son n'est envoye sur Internet.
+Sans ces fichiers, Nuage parle avec la voix de Windows.

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nuage de poche</string>
+    <string name="title_activity_main">Nuage de poche</string>
+    <string name="package_name">app.nuage.poche</string>
+    <string name="custom_url_scheme">app.nuage.poche</string>
+    <string name="copier_sur_pc">Copier sur le PC</string>
+    <string name="widget_nom">Nuage — agents</string>
+    <string name="widget_nom_court">Nuage</string>
+    <string name="widget_description">Ce que font tes agents de code sur le PC (Claude Code), en un coup d’œil.</string>
+</resources>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- 'unsafe-eval' : le validateur de définitions (ajv) compile ses schémas en fonctions -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'">
+<title>Nuage : écran de veille</title>
+<link rel="stylesheet" href="veille.css">
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="stars" id="stars"></div>
+  <main class="drift" id="scene-main">
+    <div class="clock">
+      <div class="time" id="time"></div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="scene">
+      <div class="zzz" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></div>
+      <div id="avatar"></div>
+    </div>
+    <p class="hint">Bouge la souris pour revenir : Windows te demandera ton mot de passe.</p>
+  </main>
+  <script src="nuage.avatar.js"></script>
+  <script type="module" src="veille.js"></script>
+</body>
+</html>

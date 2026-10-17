@@ -1,0 +1,70 @@
+/* Image de l'écran de verrouillage : couleurs injectées par verrouillage.js (thème Windows) */
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body {
+  position: relative;
+  background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* L'heure de Windows s'affiche en haut : Nuage se place dans le bas de l'écran */
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 78vh;
+  height: 78vh;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--accent) 55%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 20%, transparent) 38%,
+    transparent 68%);
+  filter: blur(1.5vh);
+}
+body:not(.dark) .glow { opacity: .7; }
+
+.stars span {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 .8vh rgba(255,255,255,.8);
+}
+
+.scene {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 42vh;
+  height: 42vh;
+  transform: translate(-50%, -50%);
+}
+#avatar {
+  width: 100%;
+  height: 100%;
+  filter:
+    drop-shadow(0 0 3vh color-mix(in srgb, var(--accent) 45%, transparent))
+    drop-shadow(0 2.5vh 3vh rgba(0,0,0,.35));
+}
+body:not(.dark) #avatar {
+  filter:
+    drop-shadow(0 0 3vh color-mix(in srgb, var(--accent) 35%, transparent))
+    drop-shadow(0 2vh 3vh rgba(15,23,42,.18));
+}
+
+.zzz { position: absolute; right: 2%; top: 4%; color: var(--accent); font-weight: 700; }
+.zzz span { position: absolute; text-shadow: 0 0 1.4vh color-mix(in srgb, var(--accent) 60%, transparent); }
+.zzz span:nth-child(1) { right: 0; top: 7vh; font-size: 3vh; opacity: .65; }
+.zzz span:nth-child(2) { right: -3.5vh; top: 2.5vh; font-size: 4.2vh; opacity: .8; }
+.zzz span:nth-child(3) { right: -8vh; top: -3.5vh; font-size: 6vh; }
+
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(64% + 24vh);
+  margin: 0;
+  color: var(--ink);
+  font-size: 2.1vh;
+  letter-spacing: .1em;
+  text-align: center;
+}

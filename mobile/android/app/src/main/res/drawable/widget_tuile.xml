@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Vignette arrondie du widget : blanche, colorée par AgentsWidget (setColorFilter) à la couleur de la session -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FFFFFFFF" />
+    <corners android:radius="8dp" />
+    <size android:width="30dp" android:height="30dp" />
+</shape>

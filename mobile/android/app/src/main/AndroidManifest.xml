@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Réseau local (le PC) et Internet (météo) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Service « appareil connecté » (le PC) : relève le courrier en arrière-plan -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- Nouvelles du PC (Android 13 et plus : l'utilisateur choisit) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Scanner le QR code d'association (demandé au premier scan) ; l'appli marche aussi sans caméra -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Bulle flottante : l'utilisateur l'autorise lui-même dans les réglages d'Android -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- « Où est mon téléphone ? » : il vibre en sonnant -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- « Hey Nuage » et questions à voix haute, seulement appli ouverte (demandé à la première utilisation) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Approuver une demande de Claude derrière l'empreinte, le visage ou le code du téléphone -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Android 16 : notification « Claude en direct » mise en avant (barre d'état, écran de verrouillage) -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+    <!-- Mise à jour envoyée par le PC : Android demande une fois « autoriser cette source », puis confirme chaque installation -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <!-- Android 11 et plus : voir le service de reconnaissance vocale et la synthèse vocale du téléphone -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <!-- Trafic en clair sur le Wi-Fi : le contenu est déjà chiffré de bout en bout (AES-256-GCM) -->
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- « Partager » → Nuage de poche : fichiers et textes vers le PC -->
+        <activity
+            android:name=".PartageActivity"
+            android:label="Envoyer au PC"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <!-- Texte sélectionné dans n'importe quelle appli : « Copier sur le PC » à côté de Copier, Partager… -->
+            <intent-filter android:label="@string/copier_sur_pc">
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!-- Lit la copie un instant (geste de l'utilisateur) et l'envoie au PC : tuile, notification, bulle -->
+        <activity
+            android:name=".CopieActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:exported="false" />
+
+        <!-- Approuver une demande de Claude (notification ou appli) : invite de l'empreinte, puis réponse au PC -->
+        <activity
+            android:name=".AutorisationActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:exported="false" />
+
+        <!-- Widget « Nuage — agents » de l'écran d'accueil -->
+        <receiver
+            android:name=".AgentsWidget"
+            android:exported="false"
+            android:label="@string/widget_nom">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_agents_info" />
+        </receiver>
+
+        <!-- Tuile « Copier sur le PC » des réglages rapides -->
+        <service
+            android:name=".TuileCopie"
+            android:exported="true"
+            android:icon="@drawable/ic_nuage"
+            android:label="@string/copier_sur_pc"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".LienService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+        <!-- Connexion automatique : le lien reprend après un redémarrage du téléphone ou une mise à jour -->
+        <receiver android:name=".DemarrageRecepteur" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

@@ -1,0 +1,10 @@
+/* Bulle flottante : Nuage seul, fond transparent, il remplit sa petite fenêtre */
+:root { --size: 78vw; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
+.stage { bottom: 6%; }
+.halo { inset: -6%; }
+#avatar {
+  filter:
+    drop-shadow(0 0 6px rgba(255,255,255,.9))
+    drop-shadow(0 4px 8px rgba(20,40,80,.35));
+}

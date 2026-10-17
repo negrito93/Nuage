@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data: blob:">
+<title>Nuage</title>
+<link rel="stylesheet" href="partage/style.css">
+<link rel="stylesheet" href="bulle.css">
+</head>
+<body>
+  <!-- Nuage qui flotte par-dessus les autres applis (fenêtre de Bulle.java), mêmes éléments que sur le PC -->
+  <svg class="skin-defs" aria-hidden="true" focusable="false" width="0" height="0"><defs id="skin-defs"></defs></svg>
+  <div class="trail" id="trail" aria-hidden="true"></div>
+  <div class="stage" id="stage">
+    <div class="halo"></div>
+    <div class="follow" id="follow">
+      <div class="dance">
+        <div class="float">
+          <div class="body" id="body">
+            <div class="life" id="life">
+              <div id="avatar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <svg class="dl-arrow" id="dl-arrow" viewBox="0 0 40 48" aria-hidden="true" hidden>
+      <path d="M14 4 h12 a3 3 0 0 1 3 3 v15 h7 a2.4 2.4 0 0 1 1.7 4.1 l-16 16.4 a2.4 2.4 0 0 1 -3.4 0 l-16 -16.4 a2.4 2.4 0 0 1 1.7 -4.1 h7 v-15 a3 3 0 0 1 3 -3 z"/>
+    </svg>
+    <div class="emotes" id="emotes"></div>
+  </div>
+  <script src="partage/nuage.avatar.js"></script>
+  <script type="module" src="bulle.js"></script>
+</body>
+</html>

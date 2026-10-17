@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pastille d'état du widget (calme, au travail, en attente) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#1FFFFFFF" />
+    <corners android:radius="999dp" />
+</shape>

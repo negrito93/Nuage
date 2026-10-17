@@ -1,0 +1,25 @@
+{
+  "name": "nuage-bureau",
+  "productName": "Nuage",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nuage, compagnon de bureau interactif (avatar Bible Strong Avatar Lab)",
+  "main": "main.js",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "start": "electron .",
+    "vendor": "node outils/vendor.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.131.0",
+    "@bible-strong/avatar-web": "0.1.0",
+    "@google/genai": "2.27.0",
+    "diff": "9.0.0",
+    "openai": "7.27.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "esbuild": "0.28.2"
+  }
+}

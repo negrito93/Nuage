@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mini-Nuage des vignettes du widget (corps blanc, yeux sombres), même forme que dans l'appli et l'encoche du PC -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="22dp"
+    android:viewportWidth="32"
+    android:viewportHeight="22">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M8,21a7,7 0,0 1,-0.9 -13.95A9,9 0,0 1,24.4 6.6A7.2,7.2 0,0 1,24 21Z" />
+    <path
+        android:fillColor="#FF1A1412"
+        android:pathData="M11.4,14a1.4,2.15 0,1 0,2.8 0a1.4,2.15 0,1 0,-2.8 0zM18,14a1.4,2.15 0,1 0,2.8 0a1.4,2.15 0,1 0,-2.8 0z" />
+</vector>

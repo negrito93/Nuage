@@ -1,0 +1,92 @@
+:root {
+  color-scheme: light dark;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --soft: #f3f4f6;
+  --accent: #2563eb;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --bad: #dc2626;
+  --bad-bg: #fef2f2;
+  --warn: #b45309;
+  --warn-bg: #fffbeb;
+  --dot: #22c55e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --card: #1b1e25;
+    --ink: #f3f4f6;
+    --muted: #9ca3af;
+    --line: #2d323c;
+    --soft: #252a33;
+    --accent: #60a5fa;
+    --ok: #4ade80;
+    --ok-bg: #14281c;
+    --bad: #f87171;
+    --bad-bg: #2c1717;
+    --warn: #fbbf24;
+    --warn-bg: #2b2414;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+body { padding: 8px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: var(--ink); }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 10px 30px rgba(15,23,42,.28), 0 0 0 1px var(--line);
+  overflow: hidden;
+}
+.head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; }
+h1 { margin: 0; font-size: 16px; font-weight: 700; }
+h2 { margin: 0 0 6px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+
+button { font: inherit; color: inherit; }
+/* Icônes Phosphor (icones.js) */
+svg.ico { width: 1em; height: 1em; flex: none; display: block; }
+.icon {
+  display: grid; place-items: center;
+  width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--muted); font-size: 17px; cursor: pointer;
+}
+.icon:hover, .icon:focus-visible { background: var(--soft); color: var(--ink); outline: none; }
+.icon.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.block { padding: 8px 14px; border-top: 1px solid var(--line); }
+.block:first-of-type { border-top: 0; }
+.grow { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.row-title { display: flex; align-items: center; justify-content: space-between; }
+.row-title h2 { margin: 0; }
+
+.weather { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0 0 8px; font-size: 14px; }
+.weather .sky { font-size: 22px; color: #e8930c; }
+.weather .sky.pluie, .weather .sky.bruine, .weather .sky.neige { color: var(--accent); }
+.weather .sky.couvert, .weather .sky.brouillard { color: var(--muted); }
+.weather .sky.orage, .weather .sky.night { color: #6d6fe0; }
+.weather .temp { font-weight: 700; }
+.weather small { flex-basis: 100%; color: var(--muted); }
+.place { display: flex; gap: 6px; }
+.place input {
+  flex: 1; min-width: 0; height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--soft); color: var(--ink); font: inherit; outline: none;
+}
+.place input:focus { border-color: var(--accent); }
+.place button {
+  height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); cursor: pointer;
+}
+.place button:hover { background: var(--soft); }
+.msg { min-height: 16px; margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+
+.alert { margin: 4px 0 8px; padding: 6px 8px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); font-size: 12px; }
+
+.foot { margin-top: auto; padding: 8px 14px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+.foot p { margin: 0; }

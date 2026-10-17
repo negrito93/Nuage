@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<!-- 'unsafe-eval' : le validateur de définitions de l'avatar (ajv) compile ses schémas -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://get.geojs.io https://api.open-meteo.com https://geocoding-api.open-meteo.com">
+<title>Nuage de poche</title>
+<link rel="stylesheet" href="partage/style.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-mood="calme" data-view="nuage">
+  <svg class="skin-defs" aria-hidden="true" focusable="false" width="0" height="0"><defs id="skin-defs"></defs>
+    <!-- Mini-Nuage des vignettes (sessions, services, carte d'état) -->
+    <symbol id="mini" viewBox="0 0 32 22"><path class="mini-body" d="M8 21a7 7 0 0 1-.9-13.95A9 9 0 0 1 24.4 6.6 7.2 7.2 0 0 1 24 21Z"/><g class="mini-eyes"><ellipse cx="12.8" cy="14" rx="1.4" ry="2.15"/><ellipse cx="19.4" cy="14" rx="1.4" ry="2.15"/></g></symbol>
+  </svg>
+
+  <header class="top">
+    <div class="brand">
+      <h1 id="top-title">Nuage</h1>
+      <small id="version">android</small>
+    </div>
+    <button type="button" class="pc-chip" id="pc-chip" aria-live="polite"><i></i><span id="pc-name">aucun PC</span></button>
+  </header>
+
+  <!-- Le PC fait sonner le téléphone -->
+  <section class="ring" id="ring" hidden>
+    <div class="ring-text"><b>Ton PC te cherche !</b><small>sonnerie d’alarme · 1 min au plus</small></div>
+    <button type="button" class="white-btn" id="found">Je l’ai trouvé</button>
+  </section>
+
+  <!-- Nuage, comme sur le PC (mêmes éléments que renderer/index.html) -->
+  <section class="scene" id="scene">
+    <p class="bubble" id="bubble" role="status" aria-live="polite"></p>
+    <div class="trail" id="trail" aria-hidden="true"></div>
+    <div class="floor" aria-hidden="true"></div>
+    <div class="sparks" id="sparks" aria-hidden="true"></div>
+    <div class="stage" id="stage">
+      <div class="halo"></div>
+      <div class="fx" id="fx"></div>
+      <div class="follow" id="follow">
+        <div class="dance" id="dance">
+          <div class="float">
+            <div class="body" id="body">
+              <div class="life" id="life">
+                <div id="avatar"></div>
+                <div class="mouth" id="mouth"><span class="tongue"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <svg class="dl-arrow" id="dl-arrow" viewBox="0 0 40 48" aria-hidden="true" hidden>
+        <path d="M14 4 h12 a3 3 0 0 1 3 3 v15 h7 a2.4 2.4 0 0 1 1.7 4.1 l-16 16.4 a2.4 2.4 0 0 1 -3.4 0 l-16 -16.4 a2.4 2.4 0 0 1 1.7 -4.1 h7 v-15 a3 3 0 0 1 3 -3 z"/>
+      </svg>
+      <div class="emotes" id="emotes"></div>
+      <div class="notes" id="notes"></div>
+    </div>
+  </section>
+
+  <!-- Sous Nuage : la météo (ou l'avancement d'un transfert, ou la batterie en charge) -->
+  <section class="readout" id="readout">
+    <div class="digits" id="digits">--°</div>
+    <div class="caption"><b id="cap-1">météo</b><span id="cap-2">en attente</span></div>
+  </section>
+
+  <!-- Parler à l'IA du chat du PC (Claude, Gemini, ChatGPT… : son nom vient du PC) : barre de question et « Hey Nuage » -->
+  <section class="ask-zone" id="ask-zone" hidden>
+    <div class="ask">
+      <button type="button" class="ask-open" id="ask-open"><span class="ask-ico" data-icon="chat-circle-dots"></span><span class="ask-text">Demande à Nuage…</span></button>
+      <button type="button" class="ask-mic" id="ask-mic" aria-label="Parler à Nuage" data-icon="microphone"></button>
+    </div>
+  </section>
+
+  <!-- Pas encore associé -->
+  <section class="pair" id="pair" hidden>
+    <h2 class="pair-title">Relie Nuage à ton PC</h2>
+    <ol class="steps">
+      <li><span class="num">1</span><span><b>Ouvre Nuage sur le PC</b><small>sur le même Wi-Fi que ce téléphone</small></span></li>
+      <li><span class="num">2</span><span><b>Touche « Trouver mon PC »</b><small>le téléphone le cherche sur le Wi-Fi</small></span></li>
+      <li><span class="num">3</span><span><b>Accepte sur le PC</b><small>le même code s’affiche des deux côtés</small></span></li>
+    </ol>
+    <!-- Code à 6 chiffres pendant l'association par le Wi-Fi : le PC affiche le même -->
+    <div class="pair-code" id="pair-code" hidden>
+      <small id="pair-code-label">code</small>
+      <span class="pair-digits" id="pair-digits"></span>
+    </div>
+    <button type="button" class="white-btn wide" id="find-pc">Trouver mon PC sur le Wi-Fi</button>
+    <button type="button" class="ghost-btn wide" id="scan">ou scanner le QR code</button>
+    <p class="net-line" id="net-line" aria-live="polite"></p>
+    <!-- Rien trouvé : ce qui a été essayé, et quoi faire -->
+    <div class="pair-diag" id="pair-diag" hidden>
+      <b>Je n’ai pas trouvé ton PC</b>
+      <ul id="pair-diag-list"></ul>
+      <p id="pair-diag-help"></p>
+    </div>
+  </section>
+
+  <!-- Associé : les gestes -->
+  <section class="tiles" id="tiles" hidden>
+    <button type="button" class="tile" id="send-files">
+      <span class="chip c-vert" data-icon="upload-simple"></span>
+      <b>Envoyer au PC</b>
+      <small>photos, documents</small>
+    </button>
+    <button type="button" class="tile" id="paste-pc">
+      <span class="chip c-bleu" data-icon="clipboard-text"></span>
+      <b>Coller sur le PC</b>
+      <small>ce que tu as copié</small>
+    </button>
+    <button type="button" class="tile" id="wave">
+      <span class="chip c-rose" data-icon="hand-waving"></span>
+      <b>Coucou au PC</b>
+      <small>le lien marche ?</small>
+    </button>
+    <label class="tile" id="float-tile">
+      <span class="chip c-violet" data-icon="sparkle"></span>
+      <input type="checkbox" id="float-on">
+      <span class="switch" aria-hidden="true"></span>
+      <b>Bulle</b>
+      <small>par-dessus tes applis</small>
+    </label>
+  </section>
+
+  <!-- Réglages rapides : « Hey Nuage » -->
+  <section class="group" id="wake-group" hidden>
+    <label class="row wake-row" id="wake-row">
+      <span class="row-ico c-bleu" data-icon="ear"></span>
+      <span class="row-text"><b>« Hey Nuage »</b><small id="wake-state">quand l’appli est ouverte</small></span>
+      <input type="checkbox" id="wake-on">
+      <span class="switch" aria-hidden="true"></span>
+    </label>
+  </section>
+
+  <!-- Copier sur le PC sans ouvrir l'appli -->
+  <section class="group-wrap" id="instant" hidden>
+    <p class="sec">Copier sur le PC, en un geste</p>
+    <ul class="group ways">
+      <li class="row"><span class="row-ico c-rose" data-icon="device-mobile"></span><span class="row-text"><b>Ouvre Nuage de poche</b><small>ou touche la bulle : ce que tu viens de copier part tout seul</small></span></li>
+      <li class="row"><span class="row-ico c-bleu" data-icon="cursor-text"></span><span class="row-text"><b>Sélectionne un texte</b><small>puis « Copier sur le PC » dans le petit menu</small></span></li>
+      <li class="row" id="way-bubble"><span class="row-ico c-violet" data-icon="hand-tap"></span><span class="row-text"><b>Appui long sur la bulle</b><small>envoie ce que tu viens de copier</small></span></li>
+      <li class="row"><span class="row-ico c-ambre" data-icon="lightning"></span><span class="row-text"><b>Tuile des réglages rapides</b><small>dans le volet du haut de l’écran</small></span><button type="button" class="mini-btn" id="add-tile" hidden>Ajouter</button></li>
+      <li class="row"><span class="row-ico c-vert" data-icon="bell-ringing"></span><span class="row-text"><b>Notification de Nuage</b><small>bouton « Copier sur le PC »</small></span></li>
+    </ul>
+    <p class="note">Et dans l’autre sens, c’est tout seul : ce que tu copies sur le PC arrive ici aussitôt.</p>
+  </section>
+
+  <section class="group-wrap" id="feed" hidden>
+    <p class="sec">Activité <span id="feed-count"></span></p>
+    <ul class="group items" id="items"></ul>
+    <p class="note" id="empty">Rien pour l’instant. Sur le PC, glisse un fichier sur l’encoche, « Au téléphone ».</p>
+  </section>
+
+  <!-- Agents de code du PC (Coucou sur iPhone, version Nuage de poche) -->
+  <section class="view-agents" id="view-agents" hidden>
+    <!-- L'îlot : Nuage avec l'état le plus urgent, et le résumé -->
+    <div class="island-card" id="ag-card" data-etat="calme">
+      <span class="ag-face" aria-hidden="true"><svg viewBox="0 0 32 22"><use href="#mini"/></svg><i class="ag-dot"></i></span>
+      <span class="ag-words"><b id="ag-titre">En attente du PC</b><small id="ag-texte"></small></span>
+    </div>
+    <div id="ag-demandes"></div>
+    <p class="sec caps">Aujourd’hui</p>
+    <div class="ag-stats" id="ag-stats"></div>
+    <p class="sec caps">Sessions</p>
+    <ul class="group ag-list" id="ag-sessions"></ul>
+    <p class="note" id="ag-note"></p>
+    <button type="button" class="ghost-btn wide" id="add-widget">Ajouter le widget à l’écran d’accueil</button>
+  </section>
+
+  <!-- Services branchés sur le PC (GitHub, Stripe, Vercel, n8n…) -->
+  <section class="view-services" id="view-services" hidden>
+    <ul class="svc-list" id="svc-list"></ul>
+    <p class="note" id="svc-note"></p>
+  </section>
+
+  <footer class="foot">
+    <button type="button" class="link" id="forget" hidden>Oublier ce PC</button>
+    <span id="weather-line"></span>
+  </footer>
+
+  <!-- Chat avec Claude : le même que dans l'encoche du PC (ta session Claude Code), par le PC -->
+  <section class="sheet" id="chat" aria-label="Chat avec Claude" hidden>
+    <header class="sheet-head">
+      <button type="button" class="round" id="chat-back" aria-label="Retour" data-icon="caret-left"></button>
+      <button type="button" class="sheet-title" id="chat-session-btn">
+        <b>Claude</b>
+        <small id="chat-sub">par ton PC</small>
+        <span class="caret" data-icon="caret-down"></span>
+      </button>
+      <span class="speaking" id="chat-speaking" hidden data-icon="speaker-high"></span>
+    </header>
+    <div class="session-menu" id="session-menu" hidden></div>
+    <p class="chat-banner" id="chat-banner" hidden></p>
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <div class="perm" id="chat-perm" hidden></div>
+    <form class="composer" id="composer">
+      <textarea id="chat-input" rows="1" placeholder="Écris, ou touche le micro…"></textarea>
+      <button type="button" class="c-mic" id="chat-mic" aria-label="Dicter" data-icon="microphone"></button>
+      <button type="submit" class="c-send" id="chat-send" aria-label="Envoyer" data-icon="paper-plane-tilt"></button>
+      <button type="button" class="c-send stop" id="chat-stop" aria-label="Arrêter la réponse" data-icon="stop" hidden></button>
+    </form>
+  </section>
+
+  <!-- Une session de Claude Code en détail : ta demande, ce qu'il a fait, sa réponse ; écrire pour continuer -->
+  <section class="sheet session-sheet" id="session" aria-label="Session de Claude Code" hidden>
+    <div class="backdrop" id="sess-backdrop" aria-hidden="true"></div>
+    <header class="sheet-head">
+      <button type="button" class="round" id="sess-back" aria-label="Retour" data-icon="caret-left"></button>
+      <div class="sheet-title"><b id="sess-title">Session</b></div>
+      <button type="button" class="round" id="sess-refresh" aria-label="Actualiser" data-icon="arrow-clockwise"></button>
+    </header>
+    <div class="sess-body" id="sess-body"></div>
+    <div class="chips-row" id="sess-chips">
+      <button type="button" class="qchip">Continue</button>
+      <button type="button" class="qchip">Lance les tests</button>
+      <button type="button" class="qchip">Corrige les erreurs</button>
+      <button type="button" class="qchip">Fais un commit</button>
+    </div>
+    <form class="composer" id="sess-composer">
+      <textarea id="sess-input" rows="1" placeholder="Dis à Claude quoi faire ensuite…"></textarea>
+      <button type="button" class="c-mic" id="sess-mic" aria-label="Dicter" data-icon="microphone"></button>
+      <button type="submit" class="c-send" aria-label="Envoyer" data-icon="paper-plane-tilt"></button>
+    </form>
+  </section>
+
+  <!-- Onglets (associé seulement) : Nuage, Agents, Services -->
+  <nav class="tabbar" id="tabbar" aria-label="Onglets" hidden>
+    <button type="button" data-view="nuage" class="on"><span data-icon="cloud"></span><small>Nuage</small></button>
+    <button type="button" data-view="agents"><span data-icon="sparkle"></span><small>Agents</small><i class="tab-badge" id="ag-badge" hidden></i></button>
+    <button type="button" data-view="services"><span data-icon="squares-four"></span><small>Services</small></button>
+  </nav>
+
+  <script src="partage/nuage.avatar.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Dépendances (npm install)
+node_modules/
+
+# Fichiers créés par Nuage sur chaque PC
+extension-navigateur/jeton.json
+nuage-statut.exe
+nuage.scr
+
+# Application Android : l'APK prêt à installer est fourni (telephone/nuage-de-poche.apk, construit depuis ces sources).
+# Fichiers créés quand on la reconstruit (npm run apk dans mobile/) :
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/android/capacitor-cordova-android-plugins/
+mobile/android/app/src/main/assets/public/
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/android/app/src/main/assets/capacitor.plugins.json
+
+# Voix naturelle : programme Piper et voix, à télécharger (voir README)
+voix-naturelle/piper/
+voix-naturelle/voix/
+voix-naturelle/extraits/
+
+# Divers
+graphify-out/
+CLAUDE.md
+*.log
+.vscode/
+.idea/

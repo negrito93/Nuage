@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'">
+<title>Nuage : tableau de bord</title>
+<link rel="stylesheet" href="panneau.css">
+</head>
+<body>
+<main class="card">
+  <header class="head">
+    <h1>Tableau de bord</h1>
+    <button class="icon" id="close" type="button" aria-label="Fermer" title="Fermer (Échap)"></button>
+  </header>
+
+  <section class="block" aria-labelledby="t-meteo">
+    <h2 id="t-meteo">Météo</h2>
+    <p class="weather" id="weather">Chargement…</p>
+    <form class="place" id="place-form">
+      <input id="place" type="text" placeholder="Changer de ville…" autocomplete="off" aria-label="Ville pour la météo">
+      <button type="submit">OK</button>
+      <button type="button" id="auto" title="Détecter automatiquement">Auto</button>
+    </form>
+    <p class="msg" id="place-msg" role="status"></p>
+  </section>
+
+  <footer class="foot">
+    <p>Météo : relevés des stations (aviationweather.gov) ou Open-Meteo.</p>
+  </footer>
+</main>
+<script type="module" src="panneau.js"></script>
+</body>
+</html>

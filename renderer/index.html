@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- 'unsafe-eval' : le validateur de définitions (ajv) compile ses schémas en fonctions -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data: blob:">
+<title>Nuage</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Peau de Nuage (motif SVG : météo, température, eau du téléchargement), voir peau.js -->
+  <svg class="skin-defs" aria-hidden="true" focusable="false" width="0" height="0"><defs id="skin-defs"></defs></svg>
+  <p class="bubble" id="bubble" role="status" aria-live="polite"></p>
+  <div class="trail" id="trail" aria-hidden="true"></div>
+  <div class="stage" id="stage">
+    <div class="halo"></div>
+    <div class="fx" id="fx"></div>
+    <div class="follow" id="follow">
+      <div class="dance" id="dance">
+        <div class="float">
+          <div class="body" id="body">
+            <div class="life" id="life">
+              <div id="avatar"></div>
+              <div class="mouth" id="mouth"><span class="tongue"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Flèche du téléchargement : elle tombe dans Nuage, qui se remplit -->
+    <svg class="dl-arrow" id="dl-arrow" viewBox="0 0 40 48" aria-hidden="true" hidden>
+      <path d="M14 4 h12 a3 3 0 0 1 3 3 v15 h7 a2.4 2.4 0 0 1 1.7 4.1 l-16 16.4 a2.4 2.4 0 0 1 -3.4 0 l-16 -16.4 a2.4 2.4 0 0 1 1.7 -4.1 h7 v-15 a3 3 0 0 1 3 -3 z"/>
+    </svg>
+    <div class="emotes" id="emotes"></div>
+    <div class="notes" id="notes"></div>
+    <div class="dock">
+      <!-- Capsules en verre dépoli sous Nuage : en cours de lecture, Pomodoro (icônes : icones.js) -->
+      <div class="np glass" id="np" hidden>
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="np-kind" aria-hidden="true"></span>
+        <span class="np-text"><span id="np-text"></span></span>
+        <span class="np-ctrl">
+          <button type="button" data-cmd="previous" title="Précédent" aria-label="Précédent"></button>
+          <button type="button" data-cmd="toggle" title="Lecture / pause" aria-label="Lecture ou pause" id="np-toggle"></button>
+          <button type="button" data-cmd="next" title="Suivant" aria-label="Suivant"></button>
+        </span>
+      </div>
+      <div class="pills">
+        <div class="timer glass" id="timer" hidden></div>
+        <!-- Le téléphone charge : petite batterie qui se remplit, éclair, pourcentage en direct -->
+        <div class="charge glass" id="charge" hidden>
+          <svg class="cbat" viewBox="0 0 30 16" aria-hidden="true">
+            <defs><clipPath id="charge-clip"><rect id="charge-clip-rect" x="3" y="3.5" width="0" height="9" rx="2"/></clipPath></defs>
+            <rect class="shell" x="1" y="1.5" width="24.5" height="13" rx="3.5"/><rect class="cap" x="26.6" y="5.3" width="2.4" height="5.4" rx="1"/>
+            <rect class="fill" id="charge-fill" x="3" y="3.5" width="0" height="9" rx="2"/>
+            <g clip-path="url(#charge-clip)"><rect class="sheen" x="-4" y="2" width="5" height="12"/></g>
+            <path class="bolt" d="M14.6 3.2 9.8 8.9h3.4l-1.3 4 4.9-5.8h-3.4z"/>
+          </svg>
+          <span id="charge-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="nuage.avatar.js"></script>
+  <script type="module" src="renderer.js"></script>
+</body>
+</html>

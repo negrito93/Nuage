@@ -1,0 +1,19 @@
+{
+  "name": "nuage-de-poche",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nuage de poche : Nuage sur Android, lié au PC (fichiers, copier-coller, notifications).",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "partage": "node outils/copier-partage.mjs",
+    "sync": "node outils/copier-partage.mjs && npx cap sync android",
+    "apk": "node outils/construire-apk.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2"
+  }
+}

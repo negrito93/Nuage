@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- 'unsafe-eval' : le validateur de définitions (ajv) compile ses schémas en fonctions -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'">
+<title>Nuage : écran de verrouillage</title>
+<link rel="stylesheet" href="verrouillage.css">
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="stars" id="stars"></div>
+  <div class="scene">
+    <div class="zzz" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></div>
+    <div id="avatar"></div>
+  </div>
+  <p class="caption">Nuage veille sur ton PC</p>
+  <script src="nuage.avatar.js"></script>
+  <script type="module" src="verrouillage.js"></script>
+</body>
+</html>
