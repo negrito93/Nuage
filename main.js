@@ -3,7 +3,7 @@
 // suivi du curseur, inactivité du PC, rappels.
 const {
   app, BrowserWindow, Tray, Menu, nativeImage, screen, ipcMain, powerMonitor, globalShortcut, shell,
-  session, desktopCapturer, systemPreferences, nativeTheme, dialog, Notification, clipboard,
+  session, desktopCapturer, systemPreferences, nativeTheme, dialog, Notification, clipboard, ClipboardItem,
 } = require('electron')
 const { spawn } = require('node:child_process')
 const fs = require('node:fs')
@@ -2307,17 +2307,20 @@ function onLinkEvent(e) {
     // Copié sur le téléphone → collable sur le PC (sans afficher le contenu, qui peut être privé)
     if (e.image) {
       const image = nativeImage.createFromDataURL(e.image.startsWith('data:') ? e.image : `data:image/png;base64,${e.image}`)
-      if (!image.isEmpty()) clipboard.writeImage(image)
+      if (!image.isEmpty()) clipboard.write([pngItem(image.toPNG())]).catch(error => debugLog('presse-papiers, image :', error.message))
       send('notice', `📋 Image copiée depuis ${e.appareil} : Ctrl+V pour la coller.`)
     } else {
       // Déjà dans le presse-papiers du PC : on ne réécrit pas, mais on le dit (avant, rien ne s'affichait)
-      const already = e.texte === clipboard.readText()
-      lastClipboard = e.texte
-      if (!already) clipboard.writeText(e.texte)
-      rememberClip('recu', e.texte, e.appareil, e.source)
-      send('notice', already
-        ? `📋 ${e.appareil} : ce texte est déjà dans le presse-papiers du PC (Ctrl+V).`
-        : `📋 Copié depuis ${e.appareil} (${e.texte.length} caractère${e.texte.length > 1 ? 's' : ''}) : Ctrl+V pour le coller.`)
+      const texte = e.texte
+      lastClipboard = texte // ne repart pas vers le téléphone
+      clipboard.readText().catch(() => '').then(current => {
+        const already = texte === current
+        if (!already) clipboard.writeText(texte)
+        rememberClip('recu', texte, e.appareil, e.source)
+        send('notice', already
+          ? `📋 ${e.appareil} : ce texte est déjà dans le presse-papiers du PC (Ctrl+V).`
+          : `📋 Copié depuis ${e.appareil} (${texte.length} caractère${texte.length > 1 ? 's' : ''}) : Ctrl+V pour le coller.`)
+      })
     }
   } else if (e.type === 'state') {
     phoneChargeChanged(e.device)
@@ -2370,10 +2373,26 @@ function onLinkEvent(e) {
 }
 // Mots de passe : les gestionnaires (Bitwarden, 1Password, KeePass…) marquent leurs copies pour qu'elles
 // restent hors de l'historique de Windows ; Nuage ne les envoie pas non plus
-function clipboardIsSecret() {
+// Electron 44 (17/10/2026 : « le copier-coller PC → téléphone ne marche pas ») : le presse-papiers rend des
+// promesses ; readImage, writeImage et readBuffer n'existent plus. Une promesse étant « vraie », chaque copie passait
+// pour un mot de passe et ne partait jamais. Les formats Windows se lisent avec « electron application/osclipboard ».
+const RAW_FORMAT = f => `electron application/osclipboard;format="${f}"`
+const pngItem = png => new ClipboardItem({ 'image/png': new Blob([png], { type: 'image/png' }) })
+async function readClipboardPng() {
+  for (const item of await clipboard.read()) {
+    if (item.types.includes('image/png')) return Buffer.from(await (await item.getType('image/png')).arrayBuffer())
+  }
+  return null
+}
+async function clipboardIsSecret() {
   try {
-    if (['ExcludeClipboardContentFromMonitorProcessing', 'Clipboard Viewer Ignore'].some(f => clipboard.has(f))) return true
-    if (clipboard.has('CanIncludeInClipboardHistory')) return clipboard.readBuffer('CanIncludeInClipboardHistory').readUInt32LE(0) === 0
+    for (const f of ['ExcludeClipboardContentFromMonitorProcessing', 'Clipboard Viewer Ignore']) if (await clipboard.has(RAW_FORMAT(f))) return true
+    const history = RAW_FORMAT('CanIncludeInClipboardHistory')
+    if (await clipboard.has(history)) {
+      const item = (await clipboard.read()).find(i => i.types.includes(history))
+      const flag = Buffer.from(await (await item.getType(history)).arrayBuffer())
+      return flag.length >= 4 && flag.readUInt32LE(0) === 0
+    }
   } catch {}
   return false
 }
@@ -2393,30 +2412,37 @@ function watchClipboard() {
   setInterval(() => {
     if (settings.linkOn) refreshNetDiag()
   }, 120_000)
-  lastClipboard = clipboard.readText()
-  setInterval(() => {
-    if (!link || settings.clipboardShare !== 'auto' || !phones().length) return
-    const text = clipboard.readText()
-    if (!text || text === lastClipboard) return
-    lastClipboard = text
-    if (clipboardIsSecret()) return
-    link.sendClipboard({ texte: text.slice(0, 200_000) })
-    rememberClip('envoye', text, '', 'auto')
-    pushPhone()
+  clipboard.readText().then(text => { lastClipboard = text }, () => {})
+  let reading = false // une lecture à la fois (elles sont asynchrones)
+  setInterval(async () => {
+    if (reading || !link || settings.clipboardShare !== 'auto' || !phones().length) return
+    reading = true
+    try {
+      const text = await clipboard.readText()
+      if (!text || text === lastClipboard) return
+      lastClipboard = text
+      if (await clipboardIsSecret()) return
+      link.sendClipboard({ texte: text.slice(0, 200_000) })
+      rememberClip('envoye', text, '', 'auto')
+      pushPhone()
+    } catch (error) {
+      debugLog('presse-papiers, lecture :', error.message)
+    } finally {
+      reading = false
+    }
   }, 800)
 }
 // « Envoyer le presse-papiers au téléphone » (texte, sinon image)
-function sendClipboardToPhone() {
+async function sendClipboardToPhone() {
   if (!phones().length) return send('notice', '📱 Associe d’abord ton téléphone : barre du haut → Téléphone → « Associer ».')
-  const text = clipboard.readText()
-  const image = clipboard.readImage()
+  const text = await clipboard.readText().catch(() => '')
+  const png = text ? null : await readClipboardPng().catch(() => null)
   if (text) {
     lastClipboard = text
     getLink().sendClipboard({ texte: text.slice(0, 200_000) })
     rememberClip('envoye', text, '', 'menu')
     pushPhone()
-  } else if (!image.isEmpty()) {
-    const png = image.toPNG()
+  } else if (png) {
     if (png.length > 8 * 1024 * 1024) return send('notice', '📋 Image trop grande pour le copier-coller : envoie-la plutôt comme fichier.')
     getLink().sendClipboard({ image: png.toString('base64') })
   } else {
