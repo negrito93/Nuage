@@ -36,13 +36,14 @@ Le détail de chaque fonction est dans [LISEZ-MOI.md](LISEZ-MOI.md).
 Il faut **Windows 10 ou 11** et **[Node.js](https://nodejs.org) 20 ou plus**.
 
 ```bash
-git clone https://github.com/<ton-pseudo>/nuage.git
-cd nuage
+git clone https://github.com/negrito93/Nuage.git
+cd Nuage
 npm install
 npm start
 ```
 
 Ensuite :
+- Au premier lancement, Nuage crée une icône **Nuage** sur le bureau et dans le menu Démarrer : plus besoin de revenir dans le dossier. Pour qu'il s'ouvre tout seul à l'allumage du PC : roue dentée de l'encoche → « Lancer Nuage au démarrage de Windows ».
 - **Ctrl+Alt+N** cache ou rappelle Nuage ; clic droit sur lui (ou sur son icône près de l'horloge) : le menu.
 - **Roue dentée de l'encoche → Intelligence artificielle** : colle la clé de ton IA (par exemple une clé OpenRouter, sur openrouter.ai/keys), puis « Tester ».
 

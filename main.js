@@ -97,6 +97,7 @@ const DEFAULTS = {
   screensaverDelay: 300,
   screensaverBefore: null,
   firstRun: true,
+  shortcutsMade: false, // raccourcis du bureau et du menu Démarrer déjà créés (makeShortcuts)
   okToday: null, // autorisations données aujourd'hui (Claude Code) : { day, n } — chiffre du jour du téléphone
 }
 let settings = { ...DEFAULTS }
@@ -1804,6 +1805,22 @@ function applySetting(key, value) {
 // ---------- Menu (icône de notification et clic droit sur Nuage) ----------
 const loginOptions = () =>
   app.isPackaged ? {} : { path: process.execPath, args: [path.resolve(__dirname)] }
+// Raccourcis « Nuage » sur le bureau et dans le menu Démarrer (17/10/2026 : « il est obligé de retourner à chaque
+// fois dans le dossier ? ») : faits une seule fois, sans écraser un raccourci existant ; supprimés, ils ne reviennent pas
+function makeShortcuts() {
+  if (process.platform !== 'win32' || settings.shortcutsMade || process.env.NUAGE_AUTOTEST_DIR) return
+  const { path: target = process.execPath, args = [] } = loginOptions()
+  const link = {
+    target, args: args.map(a => `"${a}"`).join(' '), cwd: path.resolve(__dirname),
+    icon: path.join(__dirname, 'assets', 'nuage.ico'), iconIndex: 0, description: 'Nuage, compagnon de bureau',
+  }
+  for (const dir of [app.getPath('desktop'), path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs')]) {
+    const file = path.join(dir, 'Nuage.lnk')
+    if (fs.existsSync(file)) continue
+    if (!shell.writeShortcutLink(file, 'create', link)) debugLog('raccourci non créé :', file)
+  }
+  updateSettings({ shortcutsMade: true })
+}
 
 function buildMenu() {
   // Tous les réglages sont dans la barre (08/10/2026) : ici, seulement de quoi l'ouvrir (même si elle est éteinte)
@@ -3401,6 +3418,7 @@ function start() {
   if (!settings.linkAuto) updateSettings({ linkOn: true, linkAuto: true })
   if (settings.linkOn) startLink()
   watchClipboard()
+  makeShortcuts()
   setTimeout(startVoice, 4000) // « Hey Nuage » (pas pendant l'auto-test : le micro est celui de l'utilisateur)
   registerVoiceShortcut()
   // Voix naturelle chargée d'avance (≈ 1 s, un peu de mémoire) : sa première phrase part tout de suite
