@@ -8,7 +8,8 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "electron .",
-    "vendor": "node outils/vendor.mjs"
+    "vendor": "node outils/vendor.mjs",
+    "installeur": "electron-builder --win nsis"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.131.0",
@@ -20,6 +21,37 @@
   },
   "devDependencies": {
     "electron": "44.5.1",
+    "electron-builder": "^26.15.3",
     "esbuild": "0.28.2"
+  },
+  "build": {
+    "appId": "app.nuage.bureau",
+    "productName": "Nuage",
+    "copyright": "AGPL-3.0",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!mobile/**",
+      "!docs/**",
+      "!dist/**",
+      "!graphify-out/**",
+      "!**/*.log"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/nuage.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nuage",
+      "runAfterFinish": true,
+      "artifactName": "Nuage-Setup-${version}.exe"
+    }
   }
 }

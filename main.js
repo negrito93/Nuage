@@ -9,6 +9,16 @@ const { spawn } = require('node:child_process')
 const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
+// Dossiers de l'utilisateur : Windows peut ne pas en connaître un (dossier déplacé, profil neuf) et app.getPath
+// lève alors une erreur, qui arrêtait tout le démarrage (19/10/2026 : essai de l'installeur sur un PC neuf)
+const KNOWN_FOLDER = { desktop: 'Desktop', documents: 'Documents', downloads: 'Downloads', pictures: 'Pictures', music: 'Music', videos: 'Videos' }
+function userDir(name) {
+  try {
+    return app.getPath(name)
+  } catch {
+    return path.join(os.homedir(), KNOWN_FOLDER[name])
+  }
+}
 // Écran de veille (lancé par nuage.scr) : programme à part, rien d'autre ne démarre
 if (process.argv.includes('--veille')) {
   require('./veille-main')
@@ -528,8 +538,8 @@ function protectedReason(target) {
   if (resolved === path.parse(resolved).root) return 'c’est un disque entier'
   const p = norm(resolved)
   const important = [
-    os.homedir(), path.dirname(os.homedir()), app.getPath('desktop'), app.getPath('documents'),
-    app.getPath('downloads'), app.getPath('pictures'), app.getPath('music'), app.getPath('videos'),
+    os.homedir(), path.dirname(os.homedir()), userDir('desktop'), userDir('documents'),
+    userDir('downloads'), userDir('pictures'), userDir('music'), userDir('videos'),
     app.getPath('appData'),
   ]
   // Le dossier lui-même ou un dossier qui le contient (ex. Documents contient Nuage)
@@ -1814,7 +1824,7 @@ function makeShortcuts() {
     target, args: args.map(a => `"${a}"`).join(' '), cwd: path.resolve(__dirname),
     icon: path.join(__dirname, 'assets', 'nuage.ico'), iconIndex: 0, description: 'Nuage, compagnon de bureau',
   }
-  for (const dir of [app.getPath('desktop'), path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs')]) {
+  for (const dir of [userDir('desktop'), path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs')]) {
     const file = path.join(dir, 'Nuage.lnk')
     if (fs.existsSync(file)) continue
     if (!shell.writeShortcutLink(file, 'create', link)) debugLog('raccourci non créé :', file)
@@ -1871,7 +1881,7 @@ function onDownloadEvent(event) {
 }
 function startDownloads() {
   if (downloads || !settings.downloadsOn) return
-  downloads = createDownloadWatcher({ folders: [app.getPath('downloads')], onEvent: onDownloadEvent, log: debugLog })
+  downloads = createDownloadWatcher({ folders: [userDir('downloads')], onEvent: onDownloadEvent, log: debugLog })
   downloads.start()
 }
 function stopDownloads() {
@@ -1906,7 +1916,7 @@ ipcMain.on('download:show', (event, file) => {
 const APK_FILE = path.join(__dirname, 'telephone', 'nuage-de-poche.apk')
 let link = null
 let lastClipboard = ''
-const linkInbox = () => path.join(app.getPath('downloads'), 'Nuage')
+const linkInbox = () => path.join(userDir('downloads'), 'Nuage')
 const shortName = (text, max = 40) => (String(text).length > max ? `${String(text).slice(0, max - 1)}…` : String(text))
 function getLink() {
   if (link) return link
