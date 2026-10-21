@@ -463,7 +463,7 @@ function classifyMedia(raw) {
 }
 function startMediaWatcher() {
   if (mediaProcess || !settings.mediaOn) return
-  const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', path.join(__dirname, 'medias.ps1')], {
+  const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'medias.ps1')], {
     windowsHide: true,
     stdio: ['pipe', 'pipe', 'pipe'],
   })
@@ -592,7 +592,7 @@ function restoreLastSwallowed() {
   const names = batch.paths.map(p => path.basename(p))
   const asciiJson = JSON.stringify(batch.paths).replace(/[\u007f-￿]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
   return new Promise(resolve => {
-    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', path.join(__dirname, 'corbeille.ps1')], {
+    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'corbeille.ps1')], {
       windowsHide: true,
     })
     let out = ''
@@ -624,7 +624,7 @@ function currentTheme() {
   return { accent, dark, key: `${LOCK_VERSION}|${accent}|${dark ? 'sombre' : 'clair'}` }
 }
 function runLockHelper(image = '') {
-  const args = ['-NoProfile', '-NonInteractive', '-File', path.join(__dirname, 'verrouillage.ps1')]
+  const args = ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'verrouillage.ps1')]
   if (image) args.push('-Image', image)
   return new Promise((resolve, reject) => {
     const child = spawn('powershell.exe', args, { windowsHide: true })
@@ -723,7 +723,7 @@ const VEILLE_SHORTCUT = 'Control+Alt+L'
 
 function runVeilleHelper(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', path.join(__dirname, 'veille.ps1'), ...args], {
+    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'veille.ps1'), ...args], {
       windowsHide: true,
     })
     let out = ''
@@ -773,7 +773,7 @@ function registerVeilleShortcut() {
 // ---------- Outil : lancer un script PowerShell du dossier et lire sa sortie JSON ----------
 function runPowerShell(script, args = []) {
   return new Promise((resolve, reject) => {
-    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', path.join(__dirname, script), ...args], { windowsHide: true })
+    const child = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, script), ...args], { windowsHide: true })
     let out = ''
     let err = ''
     child.stdout.setEncoding('utf8')
@@ -2651,7 +2651,9 @@ function onVoiceEvent(e) {
     // Micro débranché ou refusé, reconnaissance française absente : on le dit une fois, sans relancer en boucle
     send('notice', e.code === 'micro'
       ? '🎙 Je n’entends pas : branche un micro, ou autorise les applications de bureau à l’utiliser (Paramètres de Windows, Confidentialité, Microphone).'
-      : '🎙 La reconnaissance vocale en français n’est pas installée sur ce PC.')
+      : e.code === 'langue'
+        ? '🎙 Aucune reconnaissance vocale sur ce PC : Paramètres de Windows → Heure et langue → Langue et région → Français → Options de langue → installe « Reconnaissance vocale ».'
+        : `🎙 « Hey Nuage » n’a pas pu démarrer : ${String(e.message || 'erreur inconnue').slice(0, 200)}`)
     pushVoice('arret')
   } else if (voiceSpeaking) {
     // Pendant qu'il parle, il ne s'écoute pas lui-même

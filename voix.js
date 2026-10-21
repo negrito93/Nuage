@@ -61,10 +61,12 @@ function createVoice({ script, onEvent = () => {}, log = () => {} }) {
     wanted = true
     if (child) return
     clearTimeout(restartTimer)
-    const proc = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-File', script], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] })
+    const proc = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', script], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] })
     child = proc
     let buffer = ''
     let fatal = false
+    let ready = false
+    let errText = ''
     proc.stdout.setEncoding('utf8')
     proc.stdout.on('data', chunk => {
       buffer += chunk
@@ -75,7 +77,10 @@ function createVoice({ script, onEvent = () => {}, log = () => {} }) {
         if (!line) continue
         try {
           const event = JSON.parse(line)
-          if (event.type === 'pret') restarts = 0
+          if (event.type === 'pret') {
+            restarts = 0
+            ready = true
+          }
           if (event.type === 'erreur') fatal = true // micro absent, langue absente : pas de relance en boucle
           onEvent(event)
         } catch {
@@ -83,7 +88,10 @@ function createVoice({ script, onEvent = () => {}, log = () => {} }) {
         }
       }
     })
-    proc.stderr.on('data', data => log('voix.ps1 :', String(data).trim()))
+    proc.stderr.on('data', data => {
+      errText = (errText + data).slice(-2000)
+      log('voix.ps1 :', String(data).trim())
+    })
     proc.stdin.on('error', () => {})
     proc.on('error', error => {
       log('voix.ps1, lancement impossible :', error.message)
@@ -91,6 +99,12 @@ function createVoice({ script, onEvent = () => {}, log = () => {} }) {
     })
     proc.on('exit', code => {
       if (child === proc) child = null
+      // Arrêté avant d'être prêt sans rien dire (script bloqué par Windows, plantage) : l'erreur est montrée une fois,
+      // sans relance en boucle (21/10/2026 : « erreur au niveau de Hey Nuage » chez des amis, sans aucun message)
+      if (!ready && !fatal && code) {
+        fatal = true
+        onEvent({ type: 'erreur', code: 'demarrage', message: errText.trim().split(/\r?\n/)[0] || `code ${code}` })
+      }
       onEvent({ type: 'arret', code })
       if (!wanted || fatal || restarts >= 5) return
       restarts += 1

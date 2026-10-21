@@ -14,8 +14,14 @@ function Dire($objet) {
 
 try {
   Add-Type -AssemblyName System.Speech
-  $culture = New-Object System.Globalization.CultureInfo 'fr-FR'
-  $rec = New-Object System.Speech.Recognition.SpeechRecognitionEngine $culture
+  # Reconnaissance francaise, sinon celle installee (Windows en anglais : "Hey Nuage" reste reconnu, 21/10/2026)
+  $installes = @([System.Speech.Recognition.SpeechRecognitionEngine]::InstalledRecognizers())
+  $info = $installes | Where-Object { $_.Culture.Name -eq 'fr-FR' } | Select-Object -First 1
+  if (-not $info) { $info = $installes | Where-Object { $_.Culture.TwoLetterISOLanguageName -eq 'fr' } | Select-Object -First 1 }
+  if (-not $info) { $info = $installes | Select-Object -First 1 }
+  if (-not $info) { throw 'Aucune reconnaissance vocale installee sur ce PC.' }
+  $culture = $info.Culture
+  $rec = New-Object System.Speech.Recognition.SpeechRecognitionEngine $info
 } catch {
   Dire @{ type = 'erreur'; code = 'langue'; message = $_.Exception.Message }
   exit 2
